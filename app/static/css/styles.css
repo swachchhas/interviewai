@@ -1,0 +1,454 @@
+/* app/static/css/styles.css */
+
+/* General */
+body {
+  margin: 0;
+  font-family: "Helvetica Neue", sans-serif;
+  background-color: #111111; /* slightly lighter black */
+  color: #ffffff;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1a1a1a; /* slightly lighter black */
+  padding: 1rem 2rem;
+  border-bottom: 3px solid #C71C28; /* slightly lighter red */
+}
+
+.navbar .brand {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #D12B33; /* slightly lighter red */
+}
+
+.nav-links a {
+  color: #ffffff;
+  text-decoration: none;
+  margin-left: 1.5rem;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: #C71C28;
+}
+
+/* Flash messages */
+.flash-container {
+  padding: 1rem 2rem;
+}
+
+.flash {
+  background-color: #D12B33; /* lighter red */
+  color: #ffffff;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+}
+
+/* Hero Section */
+.hero-section {
+  text-align: center;
+  margin: 3rem auto;
+}
+
+.hero-section h1 {
+  font-size: 2.5rem;
+  color: #D12B33; /* slightly lighter red */
+}
+
+.hero-section p {
+  font-size: 1.2rem;
+  margin: 1rem 0;
+}
+
+.cta-btn {
+  display: inline-block;
+  background-color: #C71C28; /* slightly lighter red */
+  color: #ffffff;
+  padding: 0.8rem 1.5rem;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.cta-btn:hover {
+  background-color: #B4121B; /* original red on hover */
+}
+
+/* Upload Section */
+.upload-section {
+  background-color: #222222; /* slightly lighter black */
+  border: 2px solid #D12B33; /* lighter red */
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.upload-section h2 {
+  color: #C71C28; /* lighter red */
+  margin-bottom: 1rem;
+}
+
+.upload-section input[type="file"] {
+  margin-bottom: 1rem;
+}
+
+.upload-section button {
+  background-color: #D12B33; /* lighter red */
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.upload-section button:hover {
+  background-color: #B4121B; /* original red */
+}
+
+/* Questions Section */
+.questions-section {
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+.question-card {
+  background-color: #1a1a1a; /* slightly lighter black */
+  border: 2px solid #C71C28; /* lighter red */
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  color: #ffffff;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.question-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(200, 28, 40, 0.4);
+}
+
+.question-card h3 {
+  color: #D12B33; /* lighter red */
+}
+.questions-section {
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+.question-card {
+  background-color: #1c1c1c; /* slightly lighter black */
+  border: 2px solid #D12B33; /* lighter red */
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  color: #ffffff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.question-card:hover {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(209, 43, 51, 0.6);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nav-links {
+    margin-top: 1rem;
+  }
+
+  .upload-section,
+  .questions-section {
+    padding: 1rem;
+    width: 90%;
+    margin: 1rem auto;
+  }
+
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+
+  .hero-section p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar .brand {
+    font-size: 1.5rem;
+  }
+
+  .cta-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+/* Fade-in animation for hero & sections */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Question card hover animation */
+.question-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.question-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(200, 28, 40, 0.5);
+}
+textarea#resumeText {
+  width: 100%;
+  min-height: 120px;
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 2px solid #D12B33;
+  background-color: #222222;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  resize: vertical;
+}
+
+.questions-section {
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+.question-card {
+  background-color: #1c1c1c;
+  border: 2px solid #D12B33;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  color: #ffffff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.question-card:hover {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(209, 43, 51, 0.6);
+}
+.details-section {
+  max-width: 600px;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background-color: #1a1a1a; /* slightly lighter black */
+  border-radius: 10px;
+  border: 2px solid #C71C28; /* slightly lighter red */
+}
+
+.detail-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-card label {
+  font-weight: bold;
+  color: #D12B33; /* lighter red */
+  margin-bottom: 0.5rem;
+}
+
+.detail-card input {
+  padding: 0.6rem 1rem;
+  border-radius: 5px;
+  border: 1px solid #C71C28;
+  background-color: #222;
+  color: #fff;
+  font-size: 1rem;
+}
+/* Auth forms (Sign Up / Sign In) */
+.auth-container {
+  max-width: 400px;
+  margin: 5rem auto;
+  padding: 2rem;
+  border-radius: 12px;
+  background-color: #1a1a1a; /* same as Additional Details */
+  border: 2px solid #C71C28; /* red border like Additional Details */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+.auth-container h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color: #D12B33; /* lighter red like labels */
+}
+
+.form-group {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: bold;
+  color: #D12B33; /* same red as Additional Details */
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #C71C28; /* red border like Additional Details */
+  background-color: #222222;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.auth-container button {
+  width: 100%;
+  padding: 0.7rem;
+  margin-top: 1rem;
+  background-color: #D12B33; /* red like Additional Details */
+  color: #ffffff;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.auth-container button:hover {
+  background-color: #B4121B; /* darker red on hover */
+}
+
+.auth-container p {
+  margin-top: 1rem;
+  color: #ffffff;
+}
+
+.auth-container a {
+  color: #C71C28;
+  text-decoration: underline;
+}
+
+.auth-container a:hover {
+  color: #D12B33;
+}
+/* Enhanced Upload Section */
+.upload-section {
+  background-color: #1a1a1a; /* slightly lighter black */
+  border: 2px solid #C71C28; /* red border */
+  padding: 3rem 2rem; /* more padding */
+  margin: 3rem auto;
+  max-width: 700px; /* wider */
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(209, 43, 51, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.upload-section:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 6px 25px rgba(209, 43, 51, 0.6);
+}
+
+.upload-section h2 {
+  color: #D12B33; /* red heading */
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.upload-section input[type="file"] {
+  width: 80%; /* bigger input */
+  padding: 1rem;
+  border-radius: 8px;
+  border: 2px solid #C71C28;
+  background-color: #222222;
+  color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+}
+
+.upload-section button {
+  background-color: #D12B33;
+  color: #ffffff;
+  border: none;
+  padding: 0.8rem 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.upload-section button:hover {
+  background-color: #B4121B;
+  transform: scale(1.05);
+}
+/* Custom file upload */
+.custom-file-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.custom-file-upload input[type="file"] {
+  display: none; /* hide the default input */
+}
+
+#file-btn {
+  background-color: #D12B33;
+  color: #fff;
+  padding: 0.8rem 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+#file-btn:hover {
+  background-color: #B4121B;
+  transform: scale(1.05);
+}
+
+#file-name {
+  color: #ffffff;
+  font-size: 1rem;
+}
+/* Generate Questions Button */
+#generate-final-btn {
+  display: inline-block;
+  background-color: #ffffff; /* white background */
+  color: #000000; /* black text */
+  padding: 0.8rem 1.5rem;
+  font-weight: bold;
+  border: 2px solid #D12B33; /* optional: red border to match theme */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s, transform 0.2s;
+  text-align: center;
+}
+
+#generate-final-btn:hover {
+  background-color: #f0f0f0; /* slightly gray on hover */
+  transform: translateY(-2px) scale(1.02);
+}

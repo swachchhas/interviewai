@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="hero-section fade-in">
+  <h1>AI Interview Question Generator</h1>
+  <p>Upload your resume, and get tailored technical & behavioral interview questions.</p>
+</div>
+
+<div class="upload-section fade-in">
+  <h2>Upload Resume</h2>
+  <form id="resume-form" method="POST" enctype="multipart/form-data">
+    <div class="custom-file-upload">
+      <input type="file" name="resume_file" id="resume_file" accept=".txt,.pdf,.doc,.docx" required />
+      <button type="button" id="file-btn">Choose Resume File</button>
+      <span id="file-name">No file chosen</span>
+    </div>
+    <br /><br />
+    <button type="submit" id="generate-btn">Upload Resume</button>
+  </form>
+  <div id="loading" style="display:none; margin-top: 1rem; color: #D12B33;">
+    Generating questions, please wait...
+  </div>
+</div>
+
+<!-- Details Section (hidden until resume uploaded) -->
+<div class="details-section fade-in" id="details-section" style="display:none;">
+  <h2>Additional Details</h2>
+  <div class="detail-card">
+    <label for="role">Role</label>
+    <input type="text" name="role" id="role" placeholder="Role (optional)" />
+  </div>
+  <div class="detail-card">
+    <label for="skills">Skills</label>
+    <input type="text" name="skills" id="skills" placeholder="Skills (comma separated, optional)" />
+  </div>
+  <div class="detail-card">
+    <label for="years">Years of Experience</label>
+    <input type="number" name="years" id="years" min="0" max="50" step="1" value="0" />
+  </div>
+  <button id="generate-final-btn">Generate Questions</button>
+</div>
+
+<div class="questions-section fade-in" id="questions-section">
+  <!-- AI-generated questions will appear here -->
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% endblock %}
