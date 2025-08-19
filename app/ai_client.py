@@ -5,21 +5,23 @@ import json
 import os
 from typing import List
 from openai import OpenAI
-from app.config import API_KEYS
+from app.config import API_KEYS, Config
 
 CACHE_FILE = "app/resume_cache.json"
 
-# Load persistent cache if available
+# Load persistent cache
 if os.path.exists(CACHE_FILE):
     with open(CACHE_FILE, "r") as f:
         _resume_cache = json.load(f)
 else:
     _resume_cache = {}
 
-_api_key_index = 0  # rotate through keys locally in this module
+_api_key_index = 0  # rotate API keys locally
+
 
 def _hash_key(s: str) -> str:
     return hashlib.sha256(s.encode("utf-8")).hexdigest()
+
 
 def _next_api_key() -> str:
     global _api_key_index
@@ -29,56 +31,53 @@ def _next_api_key() -> str:
     _api_key_index += 1
     return key
 
+
 def _client() -> OpenAI:
-    return OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=_next_api_key(),
-    )
+    return OpenAI(base_url="https://openrouter.ai/api/v1", api_key=_next_api_key())
+
 
 def _parse_questions(text: str) -> List[str]:
-    lines = text.splitlines()
+    """
+    Parse raw AI output into clean, deduplicated list of questions.
+    Splits by lines, question marks, or common separators.
+    """
+    # Split by line breaks or after question marks
+    lines = re.split(r"\n|(?<=\?)", text)
     cleaned = []
-
     for p in lines:
         p = p.strip()
         if not p:
             continue
-        # remove leading numbering/bullets/markdown
+        # Remove numbering, bullets, markdown, bold wrappers
         p = re.sub(r"^\s*(?:\d+\.|\*|-|\u2022|\(|\)|#+)\s*", "", p)
-        p = re.sub(r"^\*\*|\*\*$", "", p)  # remove bold wrappers
-
-        # ensure it looks like a question
-        if not p.endswith("?"):
-            if len(p.split()) > 3:
-                p = p.rstrip(".") + "?"
-            else:
-                continue
-
+        p = re.sub(r"^\*\*|\*\*$", "", p)
+        # Ensure it ends with a question mark
+        if not p.endswith("?") and len(p.split()) > 3:
+            p = p.rstrip(".") + "?"
         cleaned.append(p)
-
-    # de-dupe & cap at 10
+    # Deduplicate and limit to 10
     seen, uniq = set(), []
     for q in cleaned:
         key = q.lower()
         if key not in seen:
             seen.add(key)
             uniq.append(q)
-
     return uniq[:10]
 
-def generate_questions(resume: str, role: str = "", skills: str = "", years: str = "") -> List[str]:
+
+def generate_questions_with_model(
+    resume: str, role: str = "", skills: str = "", years: str = "", model_name: str = None
+) -> List[str]:
     """
-    Generate 8–10 interview questions.
-    Caches by (resume+role+skills+years) hash.
-    Rotates API keys each call.
+    Generate interview questions using a specific model (or default fallback list).
     """
-    cache_key = _hash_key("|".join([resume, role, skills, years]))
+    cache_key = _hash_key("|".join([resume, role, skills, years, str(model_name)]))
     if cache_key in _resume_cache:
         return _resume_cache[cache_key]
 
     prompt = f"""
 You are an interview question generator. Based on the following resume and details, generate 8–10 clear, concise interview questions.
-Return ONLY the questions (one per line). No numbering, headings, or extra formatting.
+Number them 1 to 10. Return ONLY the questions, one per line. No extra commentary.
 
 Resume:
 {resume}
@@ -88,34 +87,54 @@ Skills: {skills}
 Years of Experience: {years}
 """
 
-    try:
-        client = _client()
-        completion = client.chat.completions.create(
-            model="deepseek/deepseek-r1-0528:free",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.6,
-            max_tokens=400,
-            extra_headers={
-                "HTTP-Referer": "http://localhost:5000",
-                "X-Title": "InterViewAI",
-            },
-        )
-        raw = completion.choices[0].message.content or ""
-        questions = _parse_questions(raw)
+    client = _client()
+    model_to_use = model_name or Config.get_model(0)
 
-        if not questions:
-            rough = [q.strip() for q in re.split(r"[\n,]+", raw) if q.strip()]
-            questions = rough[:10] if rough else ["No questions generated. Try again."]
+    completion = client.chat.completions.create(
+        model=model_to_use,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.6,
+        max_tokens=600,
+        extra_headers={
+            "HTTP-Referer": "http://localhost:5000",
+            "X-Title": "InterViewAI",
+        },
+    )
+    raw = completion.choices[0].message.content or ""
+    questions = _parse_questions(raw)
 
-        # --- cache locally & persist ---
-        _resume_cache[cache_key] = questions
-        with open(CACHE_FILE, "w") as f:
-            json.dump(_resume_cache, f)
+    if not questions:
+        # Fallback: split by common separators
+        rough = [q.strip() for q in re.split(r"[\n,;]", raw) if q.strip()]
+        questions = rough[:10] if rough else ["No questions generated. Try again."]
 
-        return questions
+    # Cache & persist
+    _resume_cache[cache_key] = questions
+    with open(CACHE_FILE, "w") as f:
+        json.dump(_resume_cache, f)
 
-    except Exception as e:
-        err_msg = str(e)
-        if "429" in err_msg or "Rate limit exceeded" in err_msg:
+    return questions
+
+
+def generate_questions(resume: str, role: str = "", skills: str = "", years: str = "") -> List[str]:
+    """
+    Tries multiple models in order until one succeeds.
+    Returns list of 8–10 questions.
+    """
+    last_error = None
+    for model_name in Config.MODELS:
+        try:
+            questions = generate_questions_with_model(resume, role, skills, years, model_name=model_name)
+            if questions:
+                return questions
+        except Exception as e:
+            last_error = str(e)
+            continue
+
+    # If all models fail
+    if last_error:
+        if "429" in last_error or "Rate limit exceeded" in last_error:
             return ["Daily free request limit reached. Please try again tomorrow or add credits."]
-        return [f"Error generating questions: {err_msg}"]
+        return [f"Error generating questions from all models: {last_error}"]
+
+    return ["No questions generated. Try again."]

@@ -1,14 +1,13 @@
-<!-- app/templates/upload.html -->
 {% extends "base.html" %}
 {% block content %}
 <div class="upload-section fade-in">
   <h2>Upload Your Resume</h2>
   <form id="resume-form" enctype="multipart/form-data">
-    <input type="file" name="resume" id="resume" accept=".pdf,.docx,.txt" required />
-    <button type="submit">Generate Questions</button>
+    <input type="file" id="resume_file" name="resume_file" accept=".txt,.pdf,.doc,.docx" required>
+    <button type="submit">Upload & Generate Questions</button>
   </form>
-  <p id="loading-message" style="display:none; color:#D12B33;">Generating questions, please wait...</p>
+  <p id="upload-status" style="color:#D12B33;"></p>
 </div>
 
-<div class="questions-section" id="questions-section"></div>
+<div id="questions-section" class="questions-section"></div>
 {% endblock %}

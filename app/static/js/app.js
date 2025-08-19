@@ -1,4 +1,3 @@
-// app/static/js/app.js
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("resume-form");
   const loading = document.getElementById("loading");
@@ -6,34 +5,30 @@ document.addEventListener("DOMContentLoaded", function () {
   const detailsSection = document.getElementById("details-section");
   const generateFinalBtn = document.getElementById("generate-final-btn");
   const fileInput = document.getElementById("resume_file");
-const fileBtn = document.getElementById("file-btn");
-const fileName = document.getElementById("file-name");
-
-fileBtn.addEventListener("click", () => fileInput.click());
-
-fileInput.addEventListener("change", () => {
-  if (fileInput.files.length > 0) {
-    fileName.textContent = fileInput.files[0].name;
-  } else {
-    fileName.textContent = "No file chosen";
-  }
-});
-
-
+  const fileBtn = document.getElementById("file-btn");
+  const fileName = document.getElementById("file-name");
 
   const MAX_RESUME_LENGTH = 1500;
 
-  if (!form) {
-    console.error("⚠️ resume-form not found in DOM.");
-    return;
-  }
+  // Force change event every time file dialog opens
+  fileBtn.addEventListener("click", () => {
+    fileInput.value = ""; // clear previous selection
+    fileInput.click();
+  });
 
-  // --- Step 1: Upload Resume ---
+  fileInput.addEventListener("change", () => {
+    if (fileInput.files.length > 0) {
+      fileName.textContent = fileInput.files[0].name;
+    } else {
+      fileName.textContent = "No file chosen";
+    }
+  });
+
+  // Step 1: Upload Resume
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const fileInput = document.getElementById("resume_file");
-    if (!fileInput || !fileInput.files.length) {
+    if (!fileInput.files.length) {
       alert("Please upload a file!");
       return;
     }
@@ -77,7 +72,7 @@ fileInput.addEventListener("change", () => {
     }
   });
 
-  // --- Step 2: Generate AI Questions ---
+  // Step 2: Generate AI Questions
   if (generateFinalBtn) {
     generateFinalBtn.addEventListener("click", async () => {
       const resumeText = detailsSection.dataset.resumeText;

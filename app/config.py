@@ -25,17 +25,27 @@ class Config:
     MAX_CONTENT_LENGTH = 4 * 1024 * 1024  # 4 MB
     ALLOWED_EXTENSIONS = {"pdf", "docx"}
 
+    # Available AI models (default + fallbacks)
+    MODELS = [
+        "tngtech/deepseek-r1t2-chimera:free",
+        "openai/gpt-oss-20b:free",
+        "deepseek/deepseek-r1:free"
+    ]
+
     @classmethod
     def get_current_api_key(cls):
-        """Return the currently active API key."""
         if cls.API_KEYS:
             return cls.API_KEYS[cls.CURRENT_KEY_INDEX % len(cls.API_KEYS)]
         return None
 
     @classmethod
     def switch_api_key(cls):
-        """Switch to the next API key in the list (round-robin)."""
         if cls.API_KEYS:
             cls.CURRENT_KEY_INDEX = (cls.CURRENT_KEY_INDEX + 1) % len(cls.API_KEYS)
             return cls.get_current_api_key()
         return None
+
+    @classmethod
+    def get_model(cls, index=0):
+        """Return the model at the given index, looping around."""
+        return cls.MODELS[index % len(cls.MODELS)]

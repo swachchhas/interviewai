@@ -1,8 +1,119 @@
 <!-- app/templates/landing.html -->
-{% extends "base.html" %} {% block content %}
-<h1>Welcome to AIQGen</h1>
-<p>
-  This is the starter page rendered via a Flask blueprint and Jinja template.
-</p>
-<p>Health check: <a href="/health">/health</a></p>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <h1>Welcome to AIQGen</h1>
+  <p>Upload a resume and generate tailored interview questions instantly!</p>
+
+  <!-- Upload form -->
+  <form id="uploadForm">
+    <label for="resume_file">Select Resume (PDF or DOCX):</label>
+    <input type="file" id="resume_file" name="resume_file" accept=".pdf,.docx" required>
+    <button type="submit">Upload</button>
+  </form>
+
+  <hr>
+
+  <!-- Resume text display -->
+  <div id="resumeTextContainer" style="display:none;">
+    <h3>Resume Preview:</h3>
+    <pre id="resumeText"></pre>
+
+    <label for="role">Role:</label>
+    <input type="text" id="role" placeholder="Optional">
+
+    <label for="skills">Skills:</label>
+    <input type="text" id="skills" placeholder="Optional, comma separated">
+
+    <label for="years">Years of Experience:</label>
+    <input type="number" id="years" placeholder="Optional">
+
+    <button id="generateBtn">Generate Questions</button>
+  </div>
+
+  <hr>
+
+  <!-- Questions display -->
+  <div id="questionsContainer" style="display:none;">
+    <h3>Generated Interview Questions:</h3>
+    <div id="loading" style="display:none;">Generating questions... Please wait.</div>
+    <div id="fallbackMsg" style="display:none; color:orange;">Trying alternative model...</div>
+    <ul id="questionsList"></ul>
+  </div>
+</div>
+
+<script>
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fileInput = document.getElementById('resume_file');
+  if (!fileInput.files.length) return alert("Please select a file.");
+
+  const formData = new FormData();
+  formData.append("resume_file", fileInput.files[0]);
+
+  try {
+    const res = await fetch("/upload", { method: "POST", body: formData });
+    const data = await res.json();
+    if (data.error) return alert(data.error);
+
+    document.getElementById('resumeTextContainer').style.display = "block";
+    document.getElementById('resumeText').textContent = data.resume_text;
+  } catch (err) {
+    alert("Upload failed: " + err);
+  }
+});
+
+document.getElementById('generateBtn').addEventListener('click', async () => {
+  const resume = document.getElementById('resumeText').textContent;
+  const role = document.getElementById('role').value;
+  const skills = document.getElementById('skills').value;
+  const years = document.getElementById('years').value;
+
+  const loading = document.getElementById('loading');
+  const fallbackMsg = document.getElementById('fallbackMsg');
+  const questionsContainer = document.getElementById('questionsContainer');
+  const list = document.getElementById('questionsList');
+
+  questionsContainer.style.display = "block";
+  loading.style.display = "block";
+  fallbackMsg.style.display = "none";
+  list.innerHTML = "";
+
+  try {
+    const res = await fetch("/generate_questions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resume, role, skills, years })
+    });
+    const data = await res.json();
+
+    loading.style.display = "none";
+
+    if (data.error) {
+      if (data.error.includes("rate limit") || data.error.includes("fallback")) {
+        fallbackMsg.style.display = "block";
+      } else {
+        return alert(data.error);
+      }
+    }
+
+    if (data.questions && data.questions.length) {
+      list.innerHTML = "";
+      data.questions.forEach(q => {
+        const li = document.createElement('li');
+        li.textContent = q;
+        list.appendChild(li);
+      });
+    } else {
+      list.innerHTML = "<li>No questions generated. Try again.</li>";
+    }
+
+  } catch (err) {
+    loading.style.display = "none";
+    fallbackMsg.style.display = "block";
+    list.innerHTML = "<li>Error generating questions. Trying fallback...</li>";
+  }
+});
+</script>
 {% endblock %}
