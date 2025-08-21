@@ -38,31 +38,43 @@ def _client() -> OpenAI:
 
 def _parse_questions(text: str) -> List[str]:
     """
-    Parse raw AI output into clean, deduplicated list of questions.
-    Splits by lines, question marks, or common separators.
+    Convert model output into a clean list of questions:
+    - prefer sentences ending with '?'
+    - strip numbering / bullets / markdown
+    - attempt to avoid truncated questions at the end
     """
-    # Split by line breaks or after question marks
-    lines = re.split(r"\n|(?<=\?)", text)
+    lines = text.splitlines()
     cleaned = []
+
     for p in lines:
         p = p.strip()
         if not p:
             continue
-        # Remove numbering, bullets, markdown, bold wrappers
+
+        # remove leading numbering/bullets/markdown
         p = re.sub(r"^\s*(?:\d+\.|\*|-|\u2022|\(|\)|#+)\s*", "", p)
-        p = re.sub(r"^\*\*|\*\*$", "", p)
-        # Ensure it ends with a question mark
-        if not p.endswith("?") and len(p.split()) > 3:
+        p = re.sub(r"^\*\*|\*\*$", "", p)  # remove bold wrappers
+
+        # if it's too short or clearly a fragment, skip
+        if len(p.split()) < 3:
+            continue
+
+        # ensure it ends with a question mark
+        if not p.endswith("?"):
             p = p.rstrip(".") + "?"
+
         cleaned.append(p)
-    # Deduplicate and limit to 10
+
+    # de-dupe & cap at 10
     seen, uniq = set(), []
     for q in cleaned:
         key = q.lower()
         if key not in seen:
             seen.add(key)
             uniq.append(q)
-    return uniq[:10]
+
+    return uniq[:10] if uniq else ["No questions generated. Please try again."]
+
 
 
 def generate_questions_with_model(
