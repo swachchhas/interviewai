@@ -1,3 +1,4 @@
+# app/app.py
 from flask import Flask
 from app.blueprints.main.routes import main_bp
 from flask_session import Session  # Optional, for server-side sessions

@@ -41,7 +41,7 @@ def _parse_questions(text: str) -> List[str]:
     Convert model output into a clean list of questions:
     - prefer sentences ending with '?'
     - strip numbering / bullets / markdown
-    - attempt to avoid truncated questions at the end
+    - avoid truncated questions at the end
     """
     lines = text.splitlines()
     cleaned = []
@@ -55,8 +55,12 @@ def _parse_questions(text: str) -> List[str]:
         p = re.sub(r"^\s*(?:\d+\.|\*|-|\u2022|\(|\)|#+)\s*", "", p)
         p = re.sub(r"^\*\*|\*\*$", "", p)  # remove bold wrappers
 
-        # if it's too short or clearly a fragment, skip
+        # skip too short fragments
         if len(p.split()) < 3:
+            continue
+
+        # avoid cut-off endings like "of", "in", "for"
+        if re.search(r"\b(of|in|for|with|and|to)$", p, re.IGNORECASE):
             continue
 
         # ensure it ends with a question mark

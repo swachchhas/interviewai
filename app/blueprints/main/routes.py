@@ -2,6 +2,7 @@
 from flask import Blueprint, render_template, request, session, flash, jsonify, redirect
 from app.ai_client import generate_questions_with_model
 from app.config import Config
+import fitz  # PyMuPDF
 
 users_db = {}
 main_bp = Blueprint("main", __name__)
@@ -15,7 +16,15 @@ def index():
     user_name = session.get('user', '')
     return render_template("index.html", user_logged_in=user_logged_in, user_name=user_name)
 
+def extract_pdf_text(file):
+    doc = fitz.open(stream=file.read(), filetype="pdf")
+    text = ""
+    for page in doc:
+        text += page.get_text()
+    return text
+
 # Upload resume
+@main_bp.route("/upload", methods=["POST"])
 @main_bp.route("/upload", methods=["POST"])
 def upload():
     if "resume_file" not in request.files:
@@ -24,12 +33,17 @@ def upload():
     if file.filename == "":
         return jsonify({"error": "No file selected."}), 400
     try:
-        resume_text = file.read().decode("utf-8", errors="ignore")
+        if file.filename.lower().endswith(".pdf"):
+            resume_text = extract_pdf_text(file)
+        else:
+            resume_text = file.read().decode("utf-8", errors="ignore")
+
         if len(resume_text) > MAX_RESUME_LENGTH:
             resume_text = resume_text[:MAX_RESUME_LENGTH] + "\n\n[Truncated resume]"
+
         return jsonify({"resume_text": resume_text})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Failed to extract resume text: {str(e)}"}), 500
 
 # Generate AI questions with multi-model fallback
 @main_bp.route("/generate_questions", methods=["POST"])

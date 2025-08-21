@@ -30,6 +30,7 @@ class Config:
         "tngtech/deepseek-r1t2-chimera:free",
         "openai/gpt-oss-20b:free",
         "deepseek/deepseek-r1:free"
+        "deepseek/deepseek-chat-v3-0324:free"
     ]
 
     @classmethod
